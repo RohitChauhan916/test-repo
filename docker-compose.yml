@@ -1,37 +1,41 @@
-version : '4.8'
+version: '3.7'
 
 services:
-  nginx:
-    image:  nginx:stable-alpine
-    ports:
-      - 80:80
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./ayush-global-env:/var/www/html:delegated
+
   mysql:
-    image:  mysql:latest
+    image: mariadb
+    volumes: 
+      - ./data/mysql:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: ag
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: ayush_global 
       MYSQL_USER: admin
-      MYSQL_PASSWORD: secret
-      MYSQL_ROOT_PASSWORD: secret
-    ports:
-      - 3306:3306
-    cap_add:
-      - SYS_NICE
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    restart: always
-    depends_on:
-      - mysql:mysql
-    ports:
-      - "8060:80"
-    environment:
-      MYSQL_ROOT_PASSWORD: secret
-      PMA_HOST: mysql
-  php:
-    build:
-      context: .
-      dockerfile: php.dockerfile
+      MYSQL_PASSWORD: secret    
+    restart: always  
+      
+  wordpress:
+    image: wordpress:php7.3-fpm-alpine    
     volumes:
-      - ./ayush-global-env:/var/www/html:delegated
+      - ./data/html:/var/www/html
+    depends_on:
+      - mysql    
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      MYSQL_ROOT_PASSWORD: secret
+      WORDPRESS_DB_NAME: ayush_global
+      WORDPRESS_DB_USER: admin
+      WORDPRESS_DB_PASSWORD: secret
+      WORDPRESS_TABLE_PREFIX: ag_    
+    links:
+      - mysql    
+    restart: always  
+    
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+      - ./data/html:/var/www/html
+    ports:
+      - 8080:80
+    links: 
+      - wordpress
