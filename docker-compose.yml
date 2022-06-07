@@ -11,8 +11,16 @@ services:
       MYSQL_DATABASE: ayush_global 
       MYSQL_USER: admin
       MYSQL_PASSWORD: secret    
-    restart: always  
-      
+    restart: always
+
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 8060:80
+    environment:
+      - PMA_ARBITRARY=1
+    restart: always
+
   wordpress:
     image: wordpress:php7.3-fpm-alpine    
     volumes:
