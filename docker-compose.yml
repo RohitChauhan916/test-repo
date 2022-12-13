@@ -1,18 +1,16 @@
-version: '3.7'
-
+---
+version: "3.7"
 services:
-
   mysql:
     image: mariadb
-    volumes: 
+    volumes:
       - ./data/mysql:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: ayush_global 
+      MYSQL_DATABASE: ayush_global
       MYSQL_USER: admin
-      MYSQL_PASSWORD: secret    
+      MYSQL_PASSWORD: secret
     restart: always
-
   phpmyadmin:
     image: phpmyadmin
     ports:
@@ -20,24 +18,22 @@ services:
     environment:
       - PMA_ARBITRARY=1
     restart: always
-
   wordpress:
-    image: wordpress:php7.3-fpm-alpine    
+    image: wordpress:php7.3-fpm-alpine
     volumes:
       - ./data/html:/var/www/html
     depends_on:
-      - mysql    
+      - mysql
     environment:
       WORDPRESS_DB_HOST: mysql
       MYSQL_ROOT_PASSWORD: secret
       WORDPRESS_DB_NAME: ayush_global
       WORDPRESS_DB_USER: admin
       WORDPRESS_DB_PASSWORD: secret
-      WORDPRESS_TABLE_PREFIX: ag_    
+      WORDPRESS_TABLE_PREFIX: ag_
     links:
-      - mysql    
-    restart: always  
-    
+      - mysql
+    restart: always
   nginx:
     image: nginx:alpine
     volumes:
@@ -45,5 +41,5 @@ services:
       - ./data/html:/var/www/html
     ports:
       - 8080:80
-    links: 
+    links:
       - wordpress
